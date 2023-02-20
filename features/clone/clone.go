@@ -40,11 +40,11 @@ func (p *clone) Name() string {
 
 func (p *clone) GenerateFile(file *protogen.File) bool {
 	proto3 := file.Desc.Syntax() == protoreflect.Proto3
-
+	p.P(`//region Cloning`)
 	for _, message := range file.Messages {
 		p.processMessage(proto3, message)
 	}
-
+	p.P(`//endregion`)
 	return p.once
 }
 
@@ -147,11 +147,9 @@ func (p *clone) generateCloneMethodsForMessage(proto3 bool, message *protogen.Me
 	p.P(`func (m *`, ccTypeName, `) `, cloneName, `() *`, ccTypeName, ` {`)
 	p.body(!proto3, ccTypeName, message.Fields, true)
 	p.P(`}`)
-	p.P()
 	p.P(`func (m *`, ccTypeName, `) `, cloneMessageName, `() `, protoPkg.Ident("Message"), ` {`)
 	p.P(`return m.`, cloneName, `()`)
 	p.P(`}`)
-	p.P()
 }
 
 // body generates the code for the actual cloning logic of a structure containing the given fields.
@@ -225,7 +223,6 @@ func (p *clone) generateCloneMethodsForOneof(field *protogen.Field) {
 	// If we have a scalar field in a oneof, that field is never nullable, even when using proto2
 	p.body(false, ccTypeName, []*protogen.Field{&fieldInOneof}, false)
 	p.P(`}`)
-	p.P()
 }
 
 func (p *clone) processMessageOneofs(message *protogen.Message) {

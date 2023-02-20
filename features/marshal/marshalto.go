@@ -49,6 +49,7 @@ func (p *marshal) GenerateFile(file *protogen.File) bool {
 	for _, message := range file.Messages {
 		p.message(message)
 	}
+	p.P()
 	return p.once
 }
 
@@ -582,6 +583,7 @@ func (p *marshal) message(message *protogen.Message) {
 	var numGen counter
 	ccTypeName := message.GoIdent
 
+	p.P(`//region Marshal `, ccTypeName)
 	p.P(`func (m *`, ccTypeName, `) `, p.methodMarshal(), `() (dAtA []byte, err error) {`)
 	p.P(`if m == nil {`)
 	p.P(`return nil, nil`)
@@ -594,12 +596,11 @@ func (p *marshal) message(message *protogen.Message) {
 	p.P(`}`)
 	p.P(`return dAtA[:n], nil`)
 	p.P(`}`)
-	p.P(``)
 	p.P(`func (m *`, ccTypeName, `) `, p.methodMarshalTo(), `(dAtA []byte) (int, error) {`)
 	p.P(`size := m.SizeVT()`)
 	p.P(`return m.`, p.methodMarshalToSizedBuffer(), `(dAtA[:size])`)
 	p.P(`}`)
-	p.P(``)
+	//p.P(``)
 	p.P(`func (m *`, ccTypeName, `) `, p.methodMarshalToSizedBuffer(), `(dAtA []byte) (int, error) {`)
 	p.P(`if m == nil {`)
 	p.P(`return 0, nil`)
@@ -669,7 +670,7 @@ func (p *marshal) message(message *protogen.Message) {
 
 	p.P(`return len(dAtA) - i, nil`)
 	p.P(`}`)
-	p.P()
+	//p.P()
 
 	//Generate MarshalToVT methods for oneof fields
 	for _, field := range message.Fields {
@@ -681,13 +682,13 @@ func (p *marshal) message(message *protogen.Message) {
 		p.P(`size := m.SizeVT()`)
 		p.P(`return m.`, p.methodMarshalToSizedBuffer(), `(dAtA[:size])`)
 		p.P(`}`)
-		p.P(``)
 		p.P(`func (m *`, ccTypeName, `) `, p.methodMarshalToSizedBuffer(), `(dAtA []byte) (int, error) {`)
 		p.P(`i := len(dAtA)`)
 		p.field(true, &numGen, field)
 		p.P(`return len(dAtA) - i, nil`)
 		p.P(`}`)
 	}
+	p.P(`//endregion`)
 }
 
 func (p *marshal) reverseListRange(expression ...string) string {

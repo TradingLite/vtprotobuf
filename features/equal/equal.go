@@ -33,9 +33,13 @@ func (p *equal) Name() string     { return "equal" }
 func (p *equal) GenerateHelpers() {}
 func (p *equal) GenerateFile(file *protogen.File) bool {
 	proto3 := file.Desc.Syntax() == protoreflect.Proto3
+
+	p.P(`//region Equal`)
 	for _, message := range file.Messages {
 		p.message(proto3, message)
 	}
+	p.P(`//endregion`)
+	p.P()
 	return p.once
 }
 
@@ -104,7 +108,6 @@ func (p *equal) message(proto3 bool, message *protogen.Message) {
 
 	p.P(`return string(this.unknownFields) == string(that.unknownFields)`)
 	p.P(`}`)
-	p.P()
 
 	p.P(`func (this *`, ccTypeName, `) `, equalMessageName, `(thatMsg `, protoPkg.Ident("Message"), `) bool {`)
 	p.P(`that, ok := thatMsg.(*`, ccTypeName, `)`)
@@ -155,7 +158,6 @@ func (p *equal) oneof(field *protogen.Field) {
 	}
 	p.P(`return true`)
 	p.P(`}`)
-	p.P()
 }
 
 func (p *equal) field(field *protogen.Field, nullable bool) {

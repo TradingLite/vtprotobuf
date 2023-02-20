@@ -21,6 +21,10 @@ type pool struct {
 
 var _ generator.FeatureGenerator = (*pool)(nil)
 
+func (p *pool) Name() string {
+	return "pool"
+}
+
 func (p *pool) GenerateHelpers() {}
 
 func (p *pool) GenerateFile(file *protogen.File) bool {

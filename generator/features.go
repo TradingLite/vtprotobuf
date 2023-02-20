@@ -25,7 +25,12 @@ func findFeatures(featureNames []string) ([]Feature, error) {
 		if !ok {
 			return nil, fmt.Errorf("unknown feature: %q", name)
 		}
-		required[name] = feat
+
+		if name == "factory" {
+			required["1factory"] = feat
+		} else {
+			required[name] = feat
+		}
 	}
 
 	type namefeat struct {

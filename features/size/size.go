@@ -289,6 +289,7 @@ func (p *size) message(message *protogen.Message) {
 	sizeName := "SizeVT"
 	ccTypeName := message.GoIdent
 
+	p.P(`//region Size `, ccTypeName)
 	p.P(`func (m *`, ccTypeName, `) `, sizeName, `() (n int) {`)
 	p.P(`if m == nil {`)
 	p.P(`return 0`)
@@ -330,4 +331,5 @@ func (p *size) message(message *protogen.Message) {
 		p.P(`return n`)
 		p.P(`}`)
 	}
+	p.P(`//endregion`)
 }
