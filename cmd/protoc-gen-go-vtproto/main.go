@@ -68,7 +68,7 @@ func generateAllFiles(plugin *protogen.Plugin, featureNames []string, poolable O
 			continue
 		}
 
-		gf := plugin.NewGeneratedFile(file.GeneratedFilenamePrefix+"_vtproto.pb.go", file.GoImportPath)
+		gf := plugin.NewGeneratedFile(file.GeneratedFilenamePrefix+".pb.vtproto.go", file.GoImportPath)
 		if !gen.GenerateFile(gf, file) && !allowEmpty {
 			gf.Skip()
 		}
