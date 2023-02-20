@@ -66,11 +66,14 @@ func (gen *Generator) GenerateFile(gf *protogen.GeneratedFile, file *protogen.Fi
 	p.P()
 
 	protoimplPackage := protogen.GoImportPath("google.golang.org/protobuf/runtime/protoimpl")
+	typesPackage := protogen.GoImportPath("tradinglite.com/core/types")
 	p.P("const (")
 	p.P("// Verify that this generated code is sufficiently up-to-date.")
 	p.P("_ = ", protoimplPackage.Ident("EnforceVersion"), "(", protoimpl.GenVersion, " - ", protoimplPackage.Ident("MinVersion"), ")")
 	p.P("// Verify that runtime/protoimpl is sufficiently up-to-date.")
 	p.P("_ = ", protoimplPackage.Ident("EnforceVersion"), "(", protoimplPackage.Ident("MaxVersion"), " - ", protoimpl.GenVersion, ")")
+	p.P("//-------")
+	p.P("_ = ", typesPackage.Ident("EnforceVersion"))
 	p.P(")")
 	p.P()
 
