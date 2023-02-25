@@ -31,6 +31,7 @@ func (p *pool) GenerateFile(file *protogen.File) bool {
 	for _, message := range file.Messages {
 		p.message(message)
 	}
+	p.P()
 	return p.once
 }
 
@@ -46,6 +47,7 @@ func (p *pool) message(message *protogen.Message) {
 	p.once = true
 	ccTypeName := message.GoIdent
 
+	p.P(`//region Pool`, ccTypeName)
 	p.P(`var vtprotoPool_`, ccTypeName, ` = `, p.Ident("sync", "Pool"), `{`)
 	p.P(`New: func() interface{} {`)
 	p.P(`return &`, message.GoIdent, `{}`)
@@ -98,4 +100,5 @@ func (p *pool) message(message *protogen.Message) {
 	p.P(`func `, ccTypeName, `FromVTPool() *`, ccTypeName, `{`)
 	p.P(`return vtprotoPool_`, ccTypeName, `.Get().(*`, ccTypeName, `)`)
 	p.P(`}`)
+	p.P(`//endregion`)
 }

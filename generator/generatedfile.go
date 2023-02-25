@@ -6,11 +6,10 @@ package generator
 
 import (
 	"fmt"
-
 	"github.com/planetscale/vtprotobuf/vtproto"
+	"google.golang.org/protobuf/proto"
 
 	"google.golang.org/protobuf/compiler/protogen"
-	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
 
@@ -38,6 +37,7 @@ func (b *GeneratedFile) ShouldPool(message *protogen.Message) bool {
 	if message == nil {
 		return false
 	}
+	//return true
 	if b.Ext.Poolable[message.GoIdent] {
 		return true
 	}
