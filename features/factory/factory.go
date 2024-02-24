@@ -8,6 +8,7 @@ package factory
 import (
 	"fmt"
 	"github.com/planetscale/vtprotobuf/generator"
+	"github.com/twmb/murmur3"
 	"google.golang.org/protobuf/compiler/protogen"
 	"hash"
 	"hash/fnv"
@@ -41,9 +42,12 @@ func (p *factory) GenerateFile(file *protogen.File) bool {
 	}
 	p.P(`}`)
 	p.P()
-
 	for _, message := range file.Messages {
-		p.factory(message)
+		p.factoryName(message)
+	}
+	p.P()
+	for _, message := range file.Messages {
+		p.factoryHash(message)
 	}
 	p.P()
 	return p.once
@@ -70,24 +74,36 @@ func (p *factory) register(message *protogen.Message) {
 	// types.RegisterHash(0xcabae491495e1ce2, "api.TickTrade", func() types.Message { return &TickTrade{} })
 	//p.P(`types.RegisterHash(0x`, message.Desc.Hash(), `, "`, typeName, `", func() types.Message { return &`, typeName, `{}})`)
 
-	typeHash := fmt.Sprintf("%#x", FNV64a(typeName.GoName))
-	p.P(`types.RegisterProto(`, typeHash, `, "`, typeName, `", func() types.ProtoMessageVT { return &`, typeName, `{}})`)
+	typeHash := fmt.Sprintf("%#x", Hash(string(message.Desc.FullName())))
+	p.P(`types.RegisterProto(`, typeHash, `, "`, message.Desc.FullName(), `", func() types.ProtoMessageVT { return &`, typeName, `{}})`)
 }
 
-func (p *factory) factory(message *protogen.Message) {
+func (p *factory) factoryName(message *protogen.Message) {
 	for _, nested := range message.Messages {
-		p.factory(nested)
+		p.factoryName(nested)
 	}
-
 	if message.Desc.IsMapEntry() {
 		return
 	}
-
 	p.once = true
-	sizeName := "MessageNameVT"
 	typeName := message.GoIdent
+	p.P(`func (`, typeName, `) MessageNameVT() string {`, `return "`, message.Desc.FullName(), `"`, `}`)
+}
 
-	p.P(`func (`, typeName, `) `, sizeName, `() string {`, `return "`, typeName, `"`, `}`)
+func (p *factory) factoryHash(message *protogen.Message) {
+	for _, nested := range message.Messages {
+		p.factoryHash(nested)
+	}
+	if message.Desc.IsMapEntry() {
+		return
+	}
+	p.once = true
+	typeName := message.GoIdent
+	typeHash := fmt.Sprintf("%#x", Hash(string(message.Desc.FullName())))
+	//p.P(`/*`)
+	//p.P(message.Desc.FullName())
+	//p.P(`*/`)
+	p.P(`func (`, typeName, `) MessageHashVT() uint32 {`, `return `, typeHash, ``, `}`)
 }
 
 func FNV64a(text string) uint64 {
@@ -98,4 +114,7 @@ func FNV64a(text string) uint64 {
 func uint64Hasher(algorithm hash.Hash64, text string) uint64 {
 	algorithm.Write([]byte(text))
 	return algorithm.Sum64()
+}
+func Hash(text string) uint32 {
+	return murmur3.StringSum32(text)
 }
